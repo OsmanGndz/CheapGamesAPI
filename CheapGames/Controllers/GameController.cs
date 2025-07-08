@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CheapGames.Models;
 using CheapGames.Dtos.Game;
 using CheapGames.Mappers;
+using CheapGames.Interfaces;
 
 namespace CheapGames.Controllers
 {
@@ -15,17 +16,17 @@ namespace CheapGames.Controllers
     public class GameController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
-        public GameController(ApplicationDBContext context)
+        private readonly IGameRepository _gameRepo;
+        public GameController(ApplicationDBContext context, IGameRepository gameRepo)
         {
+            _gameRepo = gameRepo;
             _context = context;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAllGames()
         {
-            var games = await _context.Games.
-                Include(g => g.GameCategory).
-                Include(g => g.GamePlatform).
-                ToListAsync();
+            var games = await _gameRepo.GetAllGamesAsync();
 
             if (games == null || games.Count == 0)
             {
@@ -41,10 +42,7 @@ namespace CheapGames.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetGameById([FromRoute] int id) 
         {
-            var game = await _context.Games
-                .Include(g => g.GameCategory)
-                .Include(g => g.GamePlatform)
-                .FirstOrDefaultAsync(g => g.Id == id);
+            var game = await _gameRepo.GetGameByIdAsync(id);
 
             if (game == null)
             {
@@ -56,15 +54,62 @@ namespace CheapGames.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateGame([FromBody] Game game)
+        public async Task<IActionResult> CreateGame([FromBody] CreateGameDto gameDto)
         {
-            if (game == null)
+            if (gameDto == null)
             {
                 return BadRequest("Game data is null.");
             }
-            _context.Games.Add(game);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetGameById), new { id = game.Id }, game);
+
+            var category = await _gameRepo.GetCategoryAsync(gameDto.CategoryName);
+            var platform = await _gameRepo.GetPlatformAsync(gameDto.PlatformName);
+
+            if (category == null || platform == null)
+            {
+                return BadRequest("Invalid category or platform");
+            }
+
+            var newGame = gameDto.ToGameCreateDto(category, platform);
+            await _gameRepo.CreateGameAsync(newGame);
+            
+            return CreatedAtAction(nameof(GetGameById), new { id = newGame.Id }, gameDto);
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<IActionResult> UpdateGame([FromRoute] int id, [FromBody] UpdateGameDto updateDto)
+        {
+
+            var category = await _gameRepo.GetCategoryAsync(updateDto.CategoryName);
+            var platform = await _gameRepo.GetPlatformAsync(updateDto.PlatformName);
+
+            if (category == null || platform == null)
+            {
+                return BadRequest("Invalid category or platform");
+            }
+
+            var game = await _gameRepo.UpdateGameAsync(id, updateDto, category, platform);
+
+            if (game == null)
+            {
+                return NotFound($"Game with ID {id} not found.");
+            }
+
+            return Ok(game?.ToGameReadDto());
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<IActionResult> DeleteGame([FromRoute] int id)
+        {
+            var game = await _gameRepo.DeleteGameAsync(id);
+            if (game == null)
+            {
+                return NotFound($"Game with ID {id} not found.");
+            }
+
+            return NoContent();
+
         }
     }
 }

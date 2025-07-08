@@ -1,12 +1,15 @@
 ﻿namespace CheapGames.Mappers;
 using CheapGames.Models;
+using CheapGames.Dtos.Game;
+using Microsoft.EntityFrameworkCore;
+using CheapGames.Data;
 
-    public static class GameMappers
+public static class GameMappers
     {
-        public static Dtos.Game.GameReadDto ToGameReadDto(this Game game)
+    public static GameReadDto ToGameReadDto(this Game game)
         {
             if (game == null) return null;
-            return new Dtos.Game.GameReadDto
+            return new GameReadDto
             {
                 Id = game.Id,
                 GameName = game.GameName,
@@ -19,6 +22,23 @@ using CheapGames.Models;
                 CategoryName = game.GameCategory?.CategoryName,
                 PlatformName = game.GamePlatform?.PlatformName
             };
+        }
+
+        public static Game ToGameCreateDto(this CreateGameDto game, Category category, Platform platform)
+        {
+        
+        return new Game
+            {
+                GameName = game.GameName,
+                GameDescription = game.GameDescription,
+                GameImage = game.GameImage,
+                GamePrice = game.GamePrice,
+                GameDiscount = game.GameDiscount,
+                TotalSales = game.TotalSales,
+                CategoryId = category.Id,
+                PlatformId = platform.Id
+            };
+
         }
 
     }
