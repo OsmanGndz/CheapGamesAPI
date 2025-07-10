@@ -18,6 +18,5 @@ namespace CheapGames.Models
         public int? PlatformId { get; set; }
         public Platform? GamePlatform { get; set; }
 
-
     }
 }

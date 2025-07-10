@@ -15,12 +15,10 @@ namespace CheapGames.Controllers
     [ApiController]
     public class GameController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
         private readonly IGameRepository _gameRepo;
-        public GameController(ApplicationDBContext context, IGameRepository gameRepo)
+        public GameController(IGameRepository gameRepo)
         {
             _gameRepo = gameRepo;
-            _context = context;
         }
 
         [HttpGet]
@@ -39,9 +37,14 @@ namespace CheapGames.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetGameById([FromRoute] int id) 
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var game = await _gameRepo.GetGameByIdAsync(id);
 
             if (game == null)
@@ -56,6 +59,11 @@ namespace CheapGames.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateGame([FromBody] CreateGameDto gameDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (gameDto == null)
             {
                 return BadRequest("Game data is null.");
@@ -76,9 +84,13 @@ namespace CheapGames.Controllers
         }
 
         [HttpPut]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> UpdateGame([FromRoute] int id, [FromBody] UpdateGameDto updateDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             var category = await _gameRepo.GetCategoryAsync(updateDto.CategoryName);
             var platform = await _gameRepo.GetPlatformAsync(updateDto.PlatformName);
@@ -99,9 +111,14 @@ namespace CheapGames.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> DeleteGame([FromRoute] int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var game = await _gameRepo.DeleteGameAsync(id);
             if (game == null)
             {
