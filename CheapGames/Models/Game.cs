@@ -17,6 +17,8 @@ namespace CheapGames.Models
         public int TotalSales { get; set; } = 0;
         public int? PlatformId { get; set; }
         public Platform? GamePlatform { get; set; }
+        public bool isStanding { get; set; } = false;
+        public DateTime? ReleaseDate { get; set; } 
 
     }
 }

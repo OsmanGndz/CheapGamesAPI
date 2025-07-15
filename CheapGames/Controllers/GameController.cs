@@ -128,5 +128,23 @@ namespace CheapGames.Controllers
             return NoContent();
 
         }
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetFilteredData([FromQuery] string filter)
+        {
+            if (string.IsNullOrEmpty(filter))
+            {
+                return BadRequest("Filter cannot be empty.");
+            }
+
+            var filteredGames = await _gameRepo.GetFilteredData(filter.ToLower());
+
+            if (filteredGames == null || filteredGames.Count == 0)
+            {
+                return NotFound("No games found matching the filter.");
+            }
+            var dto = filteredGames.Select(g => g.ToGameReadDto()).ToList();
+            return Ok(dto);
+        }
     }
 }

@@ -14,13 +14,14 @@ public static class GameMappers
                 Id = game.Id,
                 GameName = game.GameName,
                 GameDescription = game.GameDescription,
-                CreatedOn = game.CreatedOn,
                 GameImage = game.GameImage,
                 GamePrice = game.GamePrice,
                 GameDiscount = game.GameDiscount,
                 TotalSales = game.TotalSales,
                 CategoryName = game.GameCategory?.CategoryName,
-                PlatformName = game.GamePlatform?.PlatformName
+                PlatformName = game.GamePlatform?.PlatformName,
+                isStanding = game.isStanding,
+                ReleaseDate = game.ReleaseDate
             };
         }
 
@@ -36,8 +37,10 @@ public static class GameMappers
                 GameDiscount = game.GameDiscount,
                 TotalSales = game.TotalSales,
                 CategoryId = category.Id,
-                PlatformId = platform.Id
-            };
+                PlatformId = platform.Id,
+                isStanding = game.isStanding,
+                ReleaseDate = game.ReleaseDate
+        };
 
         }
 

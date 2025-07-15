@@ -11,6 +11,7 @@ namespace CheapGames.Interfaces
         Task<Game> CreateGameAsync(Game game);
         Task<Game?> UpdateGameAsync(int id, UpdateGameDto game, Category category, Platform platform);
         Task<Game?> DeleteGameAsync(int id);
+        Task<List<Game>> GetFilteredData(string filter);
 
     }
 }

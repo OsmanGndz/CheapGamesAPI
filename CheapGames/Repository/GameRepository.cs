@@ -52,6 +52,34 @@ namespace CheapGames.Repository
             return category;
         }
 
+        public async Task<List<Game>> GetFilteredData(string filter)
+        {
+            var data = _context.Games
+                .Include(g => g.GameCategory)
+                .Include(g => g.GamePlatform)
+                .AsQueryable();
+
+            switch (filter)
+            {
+                case "standings":
+                    return await data.Where(g => g.isStanding).ToListAsync();
+
+                case "mostsales":
+                    return await data.OrderByDescending(g => g.TotalSales).ToListAsync();
+
+                case "newadded":
+                    return await data.OrderByDescending(g => g.CreatedOn).ToListAsync();
+
+                case "preorder":
+                    return await data.Where(g => g.ReleaseDate > DateTime.Now).ToListAsync();
+
+                default:
+                    return new List<Game>();
+
+            }
+
+        }
+
         public Task<Game?> GetGameByIdAsync(int id)
         {
             return _context.Games
@@ -83,6 +111,8 @@ namespace CheapGames.Repository
             existGame.TotalSales = game.TotalSales;
             existGame.CategoryId = category.Id;
             existGame.PlatformId = platform.Id;
+            existGame.isStanding = game.isStanding;
+            existGame.ReleaseDate = game.ReleaseDate;
 
             await _context.SaveChangesAsync();
 

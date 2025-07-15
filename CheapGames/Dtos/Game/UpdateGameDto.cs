@@ -19,7 +19,7 @@ namespace CheapGames.Dtos.Game
         public string GameImage { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Price is required.")]
-        [Range(1, 100000, ErrorMessage = "Price must be between 1 and 100000.")]
+        [Range(0, 100000, ErrorMessage = "Price must be between 0 and 100000.")]
         public decimal GamePrice { get; set; }
 
         [Range(0, 100, ErrorMessage = "Discount must be between 0 and 100.")]
@@ -36,5 +36,11 @@ namespace CheapGames.Dtos.Game
         [Required(ErrorMessage = "Platform name is required.")]
         [MinLength(2, ErrorMessage = "Platform name must be at least 2 characters.")]
         public string? PlatformName { get; set; }
+
+        public bool isStanding { get; set; } = false;
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime? ReleaseDate { get; set; }
     }
 }
