@@ -12,6 +12,8 @@ namespace CheapGames.Interfaces
         Task<Game?> UpdateGameAsync(int id, UpdateGameDto game, Category category, Platform platform);
         Task<Game?> DeleteGameAsync(int id);
         Task<List<Game>> GetFilteredData(string filter);
+        Task<List<GameReadDto>> GetGamesByPlatformAsync(string platformName);
+        Task<List<GameReadDto>> GetGamesByCategoryAsync(string categoryName);
 
     }
 }

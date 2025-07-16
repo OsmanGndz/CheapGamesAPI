@@ -146,5 +146,32 @@ namespace CheapGames.Controllers
             var dto = filteredGames.Select(g => g.ToGameReadDto()).ToList();
             return Ok(dto);
         }
+
+        [HttpGet("platform")]
+        public async Task<IActionResult> GetGamesByPlatform([FromQuery] string? platformName)
+        {
+            if (string.IsNullOrEmpty(platformName))
+            {
+                return BadRequest("Platform name cannot be empty.");
+            }
+
+            var platform = await _gameRepo.GetGamesByPlatformAsync(platformName);
+
+            return Ok(platform);
+        }
+
+        [HttpGet("category")]
+        public async Task<IActionResult> GetGamesByCategory([FromQuery] string? categoryName)
+        {
+            if (string.IsNullOrEmpty(categoryName))
+            {
+                return BadRequest("Category name cannot be empty.");
+            }
+
+            var category = await _gameRepo.GetGamesByCategoryAsync(categoryName);
+
+            return Ok(category);
+        }
+
     }
 }

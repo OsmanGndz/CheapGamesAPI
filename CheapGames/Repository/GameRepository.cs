@@ -4,6 +4,7 @@ using CheapGames.Interfaces;
 using CheapGames.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using CheapGames.Mappers;
 
 namespace CheapGames.Repository
 
@@ -86,6 +87,41 @@ namespace CheapGames.Repository
                 .Include(g => g.GameCategory)
                 .Include(g => g.GamePlatform)
                 .FirstOrDefaultAsync(g=> g.Id == id);
+        }
+
+        public async Task<List<GameReadDto>> GetGamesByCategoryAsync(string categoryName)
+        {
+            var data = _context.Games
+                .Include(g => g.GameCategory)
+                .Include(g => g.GamePlatform)
+                .AsQueryable();
+
+            var categoryDto = data.Select(g => g.ToGameReadDto()).ToList();
+            var filteredData = categoryDto.Where(g => g.CategoryName == categoryName).ToList();
+
+            if(filteredData == null || filteredData.Count == 0)
+            {
+                return new List<GameReadDto>();
+            }
+
+            return filteredData;
+        }
+
+        public async Task<List<GameReadDto>> GetGamesByPlatformAsync(string platformName)
+        {
+            var data = await _context.Games
+                .Include(g => g.GameCategory)
+                .Include(g => g.GamePlatform)
+                .ToListAsync();
+            var platformDto = data.Select(g => g.ToGameReadDto()).ToList();
+            var filteredData = platformDto.Where(g => g.PlatformName == platformName).ToList();
+
+            if (filteredData == null || filteredData.Count == 0)
+            {
+                return new List<GameReadDto>();
+            }
+
+            return filteredData;
         }
 
         public async Task<Platform?> GetPlatformAsync(string? platformName)
