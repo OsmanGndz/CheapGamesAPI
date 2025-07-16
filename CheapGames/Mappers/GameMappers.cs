@@ -1,8 +1,6 @@
 ﻿namespace CheapGames.Mappers;
 using CheapGames.Models;
 using CheapGames.Dtos.Game;
-using Microsoft.EntityFrameworkCore;
-using CheapGames.Data;
 
 public static class GameMappers
     {
