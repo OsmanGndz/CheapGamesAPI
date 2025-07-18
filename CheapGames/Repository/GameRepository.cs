@@ -107,6 +107,41 @@ namespace CheapGames.Repository
             return filteredData;
         }
 
+        public async Task<List<GameReadDto>> GetGamesByFilterAsync(FilterParamsDto filter)
+        {
+            List<GameReadDto> filteredData;
+            var data = _context.Games
+                .Include(g => g.GameCategory)
+                .Include(g => g.GamePlatform)
+                .AsQueryable();
+
+            var dataDto = data.Select(g => g.ToGameReadDto()).ToList();
+
+            if (filter.Platform == null && filter.Category == null)
+            {
+                var priceFilterAll = dataDto.Where(g => g.GamePrice >= filter.minPrice && g.GamePrice <= filter.maxPrice).ToList();
+                return priceFilterAll;
+            }else if (filter.Platform == null)
+            {
+                filteredData = dataDto.Where(g => g.CategoryName == filter.Category).ToList();
+                var priceFiltered = filteredData.Where(g => g.GamePrice >= filter.minPrice && g.GamePrice <= filter.maxPrice).ToList();
+                return priceFiltered;
+
+            }
+
+            filteredData = dataDto.Where(g => g.CategoryName == filter.Category && g.PlatformName == filter.Platform).ToList();
+            var priceFilteredData = filteredData.Where(g => g.GamePrice >= filter.minPrice && g.GamePrice <= filter.maxPrice).ToList();
+
+
+            if (filteredData == null || filteredData.Count == 0)
+            {
+                return new List<GameReadDto>();
+            }
+
+            return priceFilteredData;
+
+        }
+
         public async Task<List<GameReadDto>> GetGamesByPlatformAsync(string platformName)
         {
             var data = await _context.Games
@@ -130,6 +165,35 @@ namespace CheapGames.Repository
             return platform;
         }
 
+        public async Task<PriceDto> GetPriceRangeByFilterAsync(PriceRangeDto priceRangeInfo)
+        {
+            var filters = new FilterParamsDto
+            {
+                page = 1,
+                pageSize = 1000,
+                Category = priceRangeInfo.categoryName,
+                Platform = priceRangeInfo.platformName,
+            };
+            var data = _context.Games
+                .Include(g => g.GameCategory)
+                .Include(g => g.GamePlatform)
+                .AsQueryable();
+
+            var dataDto = data.Select(g => g.ToGameReadDto()).ToList();
+            var filteredData = dataDto.Where(g =>
+                g.CategoryName == priceRangeInfo.categoryName &&
+                (string.IsNullOrEmpty(priceRangeInfo.platformName) || g.PlatformName == priceRangeInfo.platformName)
+            ).ToList();
+
+            if (filteredData == null || filteredData.Count == 0)
+            {
+                return new PriceDto { minPrice = 0, maxPrice = 0 };
+            }
+            var MinPrice = filteredData.Min(g => g.GamePrice);
+            var MaxPrice = filteredData.Max(g => g.GamePrice);
+            return new PriceDto { minPrice = MinPrice, maxPrice = MaxPrice };
+        }   
+            
         public async Task<Game?> UpdateGameAsync(int id, UpdateGameDto game, Category category, Platform platform)
         {
             var existGame = await _context.Games.FirstOrDefaultAsync(g => g.Id == id);

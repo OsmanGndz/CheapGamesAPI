@@ -173,5 +173,28 @@ namespace CheapGames.Controllers
             return Ok(category);
         }
 
+        [HttpGet("all-filter")]
+        public async Task<IActionResult> GetGamesByAllFilter([FromQuery] FilterParamsDto filter )
+        {
+            var filteredGames = await _gameRepo.GetGamesByFilterAsync(filter);
+
+            var paginatedGames = filteredGames
+            .Skip((filter.page - 1) * filter.pageSize)
+            .Take(filter.pageSize)
+            .ToList();
+
+            return Ok(paginatedGames);
+        }
+
+
+        [HttpGet("priceRange")]
+        public async Task<IActionResult> GetPriceRange([FromQuery] PriceRangeDto priceRangeInfo)
+        {
+            var priceRange = await _gameRepo.GetPriceRangeByFilterAsync(priceRangeInfo);
+
+            return Ok(priceRange);
+
+        }
+
     }
 }
