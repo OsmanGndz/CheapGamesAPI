@@ -174,16 +174,25 @@ namespace CheapGames.Controllers
         }
 
         [HttpGet("all-filter")]
-        public async Task<IActionResult> GetGamesByAllFilter([FromQuery] FilterParamsDto filter )
+        public async Task<IActionResult> GetGamesByAllFilter([FromQuery] FilterParamsDto filter)
         {
             var filteredGames = await _gameRepo.GetGamesByFilterAsync(filter);
+            var sortedGames = _gameRepo.GetSortedGamesAsync(filteredGames, filter.sortingFilter); // Fix applied here  
 
-            var paginatedGames = filteredGames
-            .Skip((filter.page - 1) * filter.pageSize)
-            .Take(filter.pageSize)
-            .ToList();
+            var totalGames = sortedGames.Count();
 
-            return Ok(paginatedGames);
+            var paginatedGames = sortedGames
+                .Skip((filter.page - 1) * filter.pageSize)
+                .Take(filter.pageSize)
+                .ToList();
+
+            var Data = new FilteredGameDto
+            {
+                totalGame = totalGames,
+                games = paginatedGames
+            };
+
+            return Ok(Data);
         }
 
 

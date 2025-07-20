@@ -192,8 +192,23 @@ namespace CheapGames.Repository
             var MinPrice = filteredData.Min(g => g.GamePrice);
             var MaxPrice = filteredData.Max(g => g.GamePrice);
             return new PriceDto { minPrice = MinPrice, maxPrice = MaxPrice };
-        }   
-            
+        }
+
+        public List<GameReadDto> GetSortedGamesAsync(List<GameReadDto> data, string sortingFilter)
+        {
+            List<GameReadDto> sortedData = sortingFilter.ToLower() switch
+            {
+                "default" => data,
+                "price-asc" => data.OrderBy(g => g.GamePrice).ToList(),
+                "price-desc" => data.OrderByDescending(g => g.GamePrice).ToList(),
+                "name-asc" => data.OrderBy(g => g.GameName).ToList(),
+                "name-desc" => data.OrderByDescending(g => g.GameName).ToList(),
+                _ => data // Return unsorted data for unknown filter  
+            };
+
+            return sortedData;
+        }
+
         public async Task<Game?> UpdateGameAsync(int id, UpdateGameDto game, Category category, Platform platform)
         {
             var existGame = await _context.Games.FirstOrDefaultAsync(g => g.Id == id);
