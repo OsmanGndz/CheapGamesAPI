@@ -18,6 +18,7 @@ namespace CheapGames.Interfaces
         Task<List<GameReadDto>> GetGamesByFilterAsync(FilterParamsDto filter);
         Task<PriceDto> GetPriceRangeByFilterAsync(PriceRangeDto priceRangeInfo);
         List<GameReadDto> GetSortedGamesAsync(List<GameReadDto> data, string sortingFilter);
+        Task<FilteredGameDto> GetSearchedGamesAsync(string searchTerm);
 
     }
 }

@@ -4,5 +4,6 @@
     {
         public string? categoryName { get; set; }
         public string? platformName { get; set; }
+        public bool discount { get; set; } = false;
     }
 }

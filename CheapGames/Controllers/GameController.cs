@@ -179,6 +179,10 @@ namespace CheapGames.Controllers
             var filteredGames = await _gameRepo.GetGamesByFilterAsync(filter);
             var sortedGames = _gameRepo.GetSortedGamesAsync(filteredGames, filter.sortingFilter); // Fix applied here  
 
+            if (filter.discount)
+            {
+                 sortedGames = sortedGames.Where(g => g.GameDiscount > 0).ToList();
+            }
             var totalGames = sortedGames.Count();
 
             var paginatedGames = sortedGames
@@ -203,6 +207,22 @@ namespace CheapGames.Controllers
 
             return Ok(priceRange);
 
+        }
+
+        [HttpGet("searchGame")]
+        public async Task<IActionResult> GetSearchedGames([FromQuery] string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return BadRequest("Search term cannot be empty.");
+            }
+            var games = _gameRepo.GetSearchedGamesAsync(searchTerm.ToLower());
+
+            if (games == null)
+            {
+                return NotFound("No games found matching the search term.");
+            }
+            return Ok(games);
         }
 
     }

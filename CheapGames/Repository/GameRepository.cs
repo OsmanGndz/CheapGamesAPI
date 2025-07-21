@@ -5,6 +5,7 @@ using CheapGames.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using CheapGames.Mappers;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CheapGames.Repository
 
@@ -167,32 +168,58 @@ namespace CheapGames.Repository
 
         public async Task<PriceDto> GetPriceRangeByFilterAsync(PriceRangeDto priceRangeInfo)
         {
-            var filters = new FilterParamsDto
-            {
-                page = 1,
-                pageSize = 1000,
-                Category = priceRangeInfo.categoryName,
-                Platform = priceRangeInfo.platformName,
-            };
             var data = _context.Games
                 .Include(g => g.GameCategory)
                 .Include(g => g.GamePlatform)
                 .AsQueryable();
 
             var dataDto = data.Select(g => g.ToGameReadDto()).ToList();
-            var filteredData = dataDto.Where(g =>
-                g.CategoryName == priceRangeInfo.categoryName &&
-                (string.IsNullOrEmpty(priceRangeInfo.platformName) || g.PlatformName == priceRangeInfo.platformName)
-            ).ToList();
+            var MinPrice = dataDto.Min(g => g.GamePrice);
+            var MaxPrice = dataDto.Max(g => g.GamePrice);
 
-            if (filteredData == null || filteredData.Count == 0)
+            if (priceRangeInfo.discount && (priceRangeInfo.categoryName == null || priceRangeInfo.platformName == null))
+            {
+                dataDto = dataDto.Where(g=> g.GameDiscount > 0 ).ToList();
+
+            }
+            else
+            {
+                dataDto = dataDto.Where(g =>
+                    g.CategoryName == priceRangeInfo.categoryName &&
+                    (string.IsNullOrEmpty(priceRangeInfo.platformName) || g.PlatformName == priceRangeInfo.platformName)
+                ).ToList();
+            }
+
+            if (dataDto == null || dataDto.Count == 0)
             {
                 return new PriceDto { minPrice = 0, maxPrice = 0 };
             }
-            var MinPrice = filteredData.Min(g => g.GamePrice);
-            var MaxPrice = filteredData.Max(g => g.GamePrice);
+            MinPrice = dataDto.Min(g => g.GamePrice);
+            MaxPrice = dataDto.Max(g => g.GamePrice);
             return new PriceDto { minPrice = MinPrice, maxPrice = MaxPrice };
         }
+
+        public async Task<FilteredGameDto> GetSearchedGamesAsync(string searchTerm)
+        {
+            string pattern = $"%{searchTerm}%";
+            var query = _context.Games.Where(g =>
+                 EF.Functions.Like(g.GameName, pattern) ||
+                 EF.Functions.Like(g.GameDescription, pattern));
+
+            var dataDto = query
+                .Select(g => g.ToGameReadDto())
+                .ToList(); // Fixed: Changed ToListAsync to ToList  
+
+            var dataAll = new FilteredGameDto
+            {
+                totalGame = dataDto.Count,
+                games = dataDto
+            };
+
+            return dataAll;
+        }
+
+
 
         public List<GameReadDto> GetSortedGamesAsync(List<GameReadDto> data, string sortingFilter)
         {
