@@ -208,7 +208,7 @@ namespace CheapGames.Repository
 
             var dataDto = query
                 .Select(g => g.ToGameReadDto())
-                .ToList(); // Fixed: Changed ToListAsync to ToList  
+                .ToList();
 
             var dataAll = new FilteredGameDto
             {
