@@ -1,10 +1,11 @@
-﻿using CheapGames.Dtos.Auth;
+﻿using CheapGames.Dtos.User;
+using CheapGames.Dtos.Auth;
 using CheapGames.Interfaces;
-using CheapGames.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using CheapGames.Mappers;
 
 namespace CheapGames.Controllers
 {
@@ -74,6 +75,52 @@ namespace CheapGames.Controllers
                 surname = user.Surname,
                 email = user.Email
             });
+        }
+
+        [Authorize]
+        [HttpPut("me")]
+        public async Task<IActionResult> UpdateMe([FromBody] UserUpdateDto updateDto)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userRepo.GetUsersByIdAsync(int.Parse(userId));
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var updatedUser = await _userRepo.UpdateUserAsync(int.Parse(userId), updateDto);
+
+            return Ok(updatedUser);
+        }
+
+        [Authorize]
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto passwordDto)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userRepo.GetUsersByIdAsync(int.Parse(userId));
+
+            var passwordChange = await _authRepo.ChangePasswordAsync(int.Parse(userId), passwordDto);
+
+            if (passwordChange == null)
+            {
+                return NotFound("Password is wrong or user could not found!");
+            }
+
+            return Ok("Password is changed");
         }
 
     }
