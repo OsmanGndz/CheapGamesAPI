@@ -7,5 +7,6 @@
         public string Surname { get; set; } = string.Empty;
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = string.Empty;
+        public List<FavoriteGame> FavoriteGames { get; set; } = new ();
     }
 }

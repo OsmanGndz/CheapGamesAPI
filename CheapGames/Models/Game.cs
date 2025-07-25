@@ -18,7 +18,8 @@ namespace CheapGames.Models
         public int? PlatformId { get; set; }
         public Platform? GamePlatform { get; set; }
         public bool isStanding { get; set; } = false;
-        public DateTime? ReleaseDate { get; set; } 
+        public DateTime? ReleaseDate { get; set; }
+        public List<FavoriteGame> FavoriteGames { get; set; } = new();
 
     }
 }

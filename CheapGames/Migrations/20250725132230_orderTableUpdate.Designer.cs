@@ -4,6 +4,7 @@ using CheapGames.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheapGames.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250725132230_orderTableUpdate")]
+    partial class orderTableUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,21 +43,6 @@ namespace CheapGames.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("CheapGames.Models.FavoriteGame", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GameId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "GameId");
-
-                    b.HasIndex("GameId");
-
-                    b.ToTable("FavoriteGames");
                 });
 
             modelBuilder.Entity("CheapGames.Models.Game", b =>
@@ -188,25 +176,6 @@ namespace CheapGames.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CheapGames.Models.FavoriteGame", b =>
-                {
-                    b.HasOne("CheapGames.Models.Game", "Game")
-                        .WithMany("FavoriteGames")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CheapGames.Models.User", "User")
-                        .WithMany("FavoriteGames")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Game");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CheapGames.Models.Game", b =>
                 {
                     b.HasOne("CheapGames.Models.Category", "GameCategory")
@@ -242,11 +211,6 @@ namespace CheapGames.Migrations
                     b.Navigation("Games");
                 });
 
-            modelBuilder.Entity("CheapGames.Models.Game", b =>
-                {
-                    b.Navigation("FavoriteGames");
-                });
-
             modelBuilder.Entity("CheapGames.Models.Order", b =>
                 {
                     b.Navigation("Games");
@@ -255,11 +219,6 @@ namespace CheapGames.Migrations
             modelBuilder.Entity("CheapGames.Models.Platform", b =>
                 {
                     b.Navigation("Games");
-                });
-
-            modelBuilder.Entity("CheapGames.Models.User", b =>
-                {
-                    b.Navigation("FavoriteGames");
                 });
 #pragma warning restore 612, 618
         }

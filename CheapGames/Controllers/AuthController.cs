@@ -35,19 +35,11 @@ namespace CheapGames.Controllers
 
             if (user == null) 
             {
-                return BadRequest(ModelState);
+                return BadRequest("User not found or password is wrong");
             }
 
             var token = _tokenRepo.CreateToken(user);
-            return Ok(new { token,
-                user = new
-                {
-                    id = user.Id,
-                    name = user.Name,
-                    surname = user.Surname,
-                    email = user.Email
-                }
-            });
+            return Ok(new { token});
         }
 
         [Authorize]
