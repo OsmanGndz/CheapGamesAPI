@@ -47,10 +47,11 @@ namespace CheapGames.Repository
         }
 
 
-        public async Task<Order?> GetOrderAsync(int id)
+        public async Task<Order?> GetOrderAsync(int id, int userId)
         {
-            var data = await _context.Orders.
-                     Include(o => o.Games)
+            var data = await _context.Orders
+                    .Where(o => o.UserId == userId)
+                    .Include(o => o.Games)
                     .ThenInclude(g => g.GameCategory)
                     .Include(o => o.Games)
                     .ThenInclude(g => g.GamePlatform)
@@ -64,14 +65,16 @@ namespace CheapGames.Repository
             return data;
         }
 
-        public async Task<List<Order>?> GetOrdersAsync()
+        public async Task<List<Order>?> GetOrdersAsync(int userId)
         {
             var data = await _context.Orders
-        .Include(o => o.Games)
-            .ThenInclude(g => g.GameCategory)
-        .Include(o => o.Games)
-            .ThenInclude(g => g.GamePlatform)
-        .ToListAsync();
+                .Where(o=> o.UserId == userId)
+                .Include(o => o.Games)
+                    .ThenInclude(g => g.GameCategory)
+                .Include(o => o.Games)
+                    .ThenInclude(g => g.GamePlatform)
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
 
             if (data == null) 
             {

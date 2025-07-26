@@ -5,8 +5,8 @@ namespace CheapGames.Interfaces
 {
     public interface IOrderRepository
     {
-        Task<List<Order>?> GetOrdersAsync();
-        Task<Order?> GetOrderAsync(int id);
+        Task<List<Order>?> GetOrdersAsync(int userId);
+        Task<Order?> GetOrderAsync(int id, int userId);
         Task<Order?> CreateOrderAsync(OrderCreateDto orderDto, int userId);
     }
 }

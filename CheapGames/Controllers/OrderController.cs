@@ -23,7 +23,19 @@ namespace CheapGames.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
-            var orders = await _orderRepo.GetOrdersAsync();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User could not recognized");
+            }
+
+            var userId = int.Parse(userIdClaim);
+
+            var user = await _userRepo.IsUserExistById(userId);
+
+            if (user == false) return NotFound("User not found");
+
+            var orders = await _orderRepo.GetOrdersAsync(userId);
 
             if (orders == null) 
             {
@@ -37,12 +49,24 @@ namespace CheapGames.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetOrderById(int id)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User could not recognized");
+            }
+
+            var userId = int.Parse(userIdClaim);
+
+            var user = await _userRepo.IsUserExistById(userId);
+
+            if (user == false) return NotFound("User not found");
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var order = await _orderRepo.GetOrderAsync(id);
+            var order = await _orderRepo.GetOrderAsync(id, userId);
 
             if (order == null)
             {
