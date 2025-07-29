@@ -30,7 +30,12 @@ namespace CheapGames.Repository
             if (games.Count == 0)
                 return null;
 
-            var totalPrice = games.Sum(g => g.GamePrice);
+            if(games.Count != orderDto.GameIds.Count)
+            {
+                throw new Exception("Some games could not found at database.");
+            }
+
+            var totalPrice = games.Sum(g => g.GamePrice - (g.GamePrice * (g.GameDiscount / 100)));
 
             var order = new Order
             {

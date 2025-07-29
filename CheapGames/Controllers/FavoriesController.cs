@@ -1,7 +1,7 @@
 ﻿using CheapGames.Interfaces;
 using CheapGames.Mappers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using CheapGames.Dtos.Game;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -20,7 +20,7 @@ namespace CheapGames.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllFavoriesById()
+        public async Task<IActionResult> GetAllFavoriesById([FromQuery] int page, [FromQuery] int pageSize)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdClaim == null)
@@ -37,9 +37,44 @@ namespace CheapGames.Controllers
                 return NotFound("There is no favorite for this user");
             }
 
+            var totalGames = favories.Count();
+
             var favoriteDto = favories.Select(f => f.ToGameReadDto());
 
-            return Ok(favoriteDto);
+            var paginatedGames = favoriteDto
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var Data = new FilteredGameDto
+            {
+                totalGame = totalGames,
+                games = paginatedGames
+            };
+
+            return Ok(Data);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetFavoriteById([FromRoute] int id)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User could not recognized");
+            }
+
+            var userId = int.Parse(userIdClaim);
+
+            var favories = await _favRepo.GetFavoriteByIdAsync(userId, id);
+
+            if (favories == false)
+            {
+                return NotFound("There is no favorite for this user");
+            }
+
+
+            return Ok(favories);
         }
 
         [HttpPost]
@@ -64,8 +99,8 @@ namespace CheapGames.Controllers
             return Ok("Added to favories");
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> RemoveFavoriteGame([FromBody] int gameId)
+        [HttpDelete("{gameId:int}")]
+        public async Task<IActionResult> RemoveFavoriteGame([FromRoute] int gameId)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdClaim == null)

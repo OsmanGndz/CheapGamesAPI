@@ -64,16 +64,16 @@ namespace CheapGames.Repository
             switch (filter)
             {
                 case "standings":
-                    return await data.Where(g => g.isStanding).ToListAsync();
+                    return await data.Where(g => g.isStanding).Take(12).ToListAsync();
 
                 case "mostsales":
-                    return await data.OrderByDescending(g => g.TotalSales).ToListAsync();
+                    return await data.OrderByDescending(g => g.TotalSales).Take(12).ToListAsync();
 
                 case "newadded":
-                    return await data.OrderByDescending(g => g.CreatedOn).ToListAsync();
+                    return await data.OrderByDescending(g => g.CreatedOn).Take(12).ToListAsync();
 
                 case "preorder":
-                    return await data.Where(g => g.ReleaseDate > DateTime.Now).ToListAsync();
+                    return await data.Where(g => g.ReleaseDate > DateTime.Now).Take(12).ToListAsync();
 
                 default:
                     return new List<Game>();
@@ -98,7 +98,7 @@ namespace CheapGames.Repository
                 .AsQueryable();
 
             var categoryDto = data.Select(g => g.ToGameReadDto()).ToList();
-            var filteredData = categoryDto.Where(g => g.CategoryName == categoryName).ToList();
+            var filteredData = categoryDto.Where(g => g.CategoryName == categoryName).Take(12).ToList();
 
             if(filteredData == null || filteredData.Count == 0)
             {

@@ -7,5 +7,6 @@ namespace CheapGames.Interfaces
         Task<List<Game>> GetFavoriesAsync(int userId);
         Task<bool> DeleteFavoriteAsync(int userId, int gameId);
         Task<bool> AddFavoriteAsync(int userId, int gameId);
+        Task<bool> GetFavoriteByIdAsync(int userId, int gameId);
     }
 }

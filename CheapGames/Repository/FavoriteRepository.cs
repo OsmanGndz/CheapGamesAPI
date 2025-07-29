@@ -53,5 +53,13 @@ namespace CheapGames.Repository
 
             return favorites;
         }
+
+        public async Task<bool> GetFavoriteByIdAsync(int userId, int gameId)
+        {
+            var isFavorite = await _context.FavoriteGames
+                        .AnyAsync(fg => fg.UserId == userId && fg.GameId == gameId);
+
+            return isFavorite;
+        }
     }
 }
