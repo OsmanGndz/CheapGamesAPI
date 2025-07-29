@@ -9,7 +9,7 @@ namespace CheapGames.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalPrice { get; set; } = 0;
-        public List<Game> Games { get; set; } = new List<Game>();
+        public List<OrderItem> OrderItems { get; set; } = new ();
         public User User { get; set; } = null!;
 
     }

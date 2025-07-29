@@ -23,16 +23,16 @@ namespace CheapGames.Repository
 
             var games = await _context.Games
                 .Where(g => orderDto.GameIds.Contains(g.Id))
-                .Include(g=> g.GameCategory)
-                .Include(g=> g.GamePlatform)
+                .Include(g => g.GameCategory)
+                .Include(g => g.GamePlatform)
                 .ToListAsync();
 
             if (games.Count == 0)
                 return null;
 
-            if(games.Count != orderDto.GameIds.Count)
+            if (games.Count != orderDto.GameIds.Count)
             {
-                throw new Exception("Some games could not found at database.");
+                throw new Exception("Some games could not be found in the database.");
             }
 
             var totalPrice = games.Sum(g => g.GamePrice - (g.GamePrice * (g.GameDiscount / 100)));
@@ -40,9 +40,19 @@ namespace CheapGames.Repository
             var order = new Order
             {
                 UserId = userId,
-                Games = games,
                 TotalPrice = totalPrice,
+                OrderItems = new List<OrderItem>()
             };
+
+            foreach (var game in games)
+            {
+                order.OrderItems.Add(new OrderItem
+                {
+                    GameId = game.Id,
+                    Order = order,
+                    PriceAtPurchase = (game.GamePrice) - (game.GamePrice * (game.GameDiscount / 100))
+                });
+            }
 
 
             await _context.Orders.AddAsync(order);
@@ -56,10 +66,12 @@ namespace CheapGames.Repository
         {
             var data = await _context.Orders
                     .Where(o => o.UserId == userId)
-                    .Include(o => o.Games)
-                    .ThenInclude(g => g.GameCategory)
-                    .Include(o => o.Games)
-                    .ThenInclude(g => g.GamePlatform)
+                    .Include(o => o.OrderItems)
+                        .ThenInclude(g => g.Game)
+                            .ThenInclude(g => g.GameCategory)
+                    .Include(o => o.OrderItems)
+                        .ThenInclude(g => g.Game)
+                            .ThenInclude(g => g.GamePlatform)
                     .FirstOrDefaultAsync(o => o.Id == id);
 
             if (data == null)
@@ -74,10 +86,12 @@ namespace CheapGames.Repository
         {
             var data = await _context.Orders
                 .Where(o=> o.UserId == userId)
-                .Include(o => o.Games)
-                    .ThenInclude(g => g.GameCategory)
-                .Include(o => o.Games)
-                    .ThenInclude(g => g.GamePlatform)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(g => g.Game)
+                        .ThenInclude(g=> g.GameCategory)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(g => g.Game)
+                        .ThenInclude(g => g.GamePlatform)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 

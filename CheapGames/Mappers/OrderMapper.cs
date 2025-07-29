@@ -15,7 +15,7 @@ namespace CheapGames.Mappers
                 Id = order.Id,
                 CreatedAt = order.CreatedAt,
                 TotalPrice = order.TotalPrice,
-                Games = order.Games.Select(g => g.ToGameReadDto()).ToList()
+                Games = order.OrderItems.Select(g => g.Game.ToGameReadDto()).ToList()
             };
 
         }
