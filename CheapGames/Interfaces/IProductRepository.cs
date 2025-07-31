@@ -6,5 +6,6 @@ namespace CheapGames.Interfaces
     public interface IProductRepository
     {
         Task<List<ProductReadDto>> GetOrderItems(int userId);
+        Task<List<int>> GetMyProductIdsAsync(int userId);
     }
 }

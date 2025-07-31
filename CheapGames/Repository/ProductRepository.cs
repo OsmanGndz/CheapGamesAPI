@@ -15,6 +15,17 @@ namespace CheapGames.Repository
             _context = context;
         }
 
+        public async Task<List<int>> GetMyProductIdsAsync(int userId)
+        {
+            var previouslyOrderedGameIds = await _context.Orders
+                .Where(o => o.UserId == userId)
+                .SelectMany(o => o.OrderItems.Select(oi => oi.GameId))
+                .ToListAsync();
+
+
+            return previouslyOrderedGameIds;
+        }
+
         public async Task<List<ProductReadDto>> GetOrderItems(int userId)
         {
             var orders = await _context.Orders

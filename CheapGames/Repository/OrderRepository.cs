@@ -17,9 +17,16 @@ namespace CheapGames.Repository
 
         public async Task<Order?> CreateOrderAsync(OrderCreateDto orderDto, int userId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
+            var previouslyOrderedGameIds = await _context.Orders
+                .Where(o => o.UserId == userId)
+                .SelectMany(o => o.OrderItems.Select(oi => oi.GameId))
+                .ToListAsync();
+
+            var alreadyOrderedGameIds = orderDto.GameIds.Intersect(previouslyOrderedGameIds).ToList();
+            if (alreadyOrderedGameIds.Any())
+            {
                 return null;
+            }
 
             var games = await _context.Games
                 .Where(g => orderDto.GameIds.Contains(g.Id))
@@ -35,7 +42,12 @@ namespace CheapGames.Repository
                 throw new Exception("Some games could not be found in the database.");
             }
 
-            var totalPrice = games.Sum(g => g.GamePrice - (g.GamePrice * (g.GameDiscount / 100)));
+            decimal CalculateDiscountedPrice(decimal price, decimal discount)
+            {
+                return price - (price * (discount / 100m));
+            }
+
+            var totalPrice = games.Sum(g => CalculateDiscountedPrice(g.GamePrice, g.GameDiscount));
 
             var order = new Order
             {
@@ -46,14 +58,15 @@ namespace CheapGames.Repository
 
             foreach (var game in games)
             {
+                var discountedPrice = CalculateDiscountedPrice(game.GamePrice, game.GameDiscount);
+
                 order.OrderItems.Add(new OrderItem
                 {
                     GameId = game.Id,
                     Order = order,
-                    PriceAtPurchase = (game.GamePrice) - (game.GamePrice * (game.GameDiscount / 100))
+                    PriceAtPurchase = discountedPrice
                 });
             }
-
 
             await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();

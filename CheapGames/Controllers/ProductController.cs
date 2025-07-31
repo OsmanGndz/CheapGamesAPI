@@ -21,7 +21,7 @@ namespace CheapGames.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMyProducts() 
+        public async Task<IActionResult> GetMyProducts([FromQuery] int page, [FromQuery] int pageSize) 
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -37,8 +37,43 @@ namespace CheapGames.Controllers
             if (user == false) return NotFound("User not found");
 
             var products = await _productRepo.GetOrderItems(userId);
+            var totalGame = products.Count;
 
-            return Ok(products);
+            var paginatedProducts = products
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            
+
+            return Ok(new
+            {
+                totalGames = totalGame,
+                games = paginatedProducts
+            });
+
+
+        }
+
+        [HttpGet("product-ids")]
+        public async Task<IActionResult> GetMyProductIds()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User could not recognized");
+            }
+
+            var userId = int.Parse(userIdClaim);
+
+            var user = await _userRepo.IsUserExistById(userId);
+
+            if (user == false) return NotFound("User not found");
+
+            var productIds = await _productRepo.GetMyProductIdsAsync(userId);
+
+            return Ok(productIds);
 
 
         }

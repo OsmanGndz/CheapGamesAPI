@@ -95,7 +95,7 @@ namespace CheapGames.Controllers
 
             if (order == null) 
             {
-                return BadRequest("Order could not taken succesfully");
+                return BadRequest("Order could not taken succesfully, it can be because of product already exist for user.");
             }
 
             return Ok(order.ToOrderReadDto());
