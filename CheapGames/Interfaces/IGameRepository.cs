@@ -13,12 +13,12 @@ namespace CheapGames.Interfaces
         Task<Game?> DeleteGameAsync(int id);
         Task<List<Game>> GetFilteredData(string filter);
         Task<List<GameReadDto>> GetGamesByPlatformAsync(string platformName);
-        Task<List<GameReadDto>> GetGamesByCategoryAsync(string categoryName);
+        List<GameReadDto> GetGamesByCategoryAsync(string categoryName);
 
-        Task<List<GameReadDto>> GetGamesByFilterAsync(FilterParamsDto filter);
-        Task<PriceDto> GetPriceRangeByFilterAsync(PriceRangeDto priceRangeInfo);
+        List<GameReadDto> GetGamesByFilterAsync(FilterParamsDto filter);
+        PriceDto GetPriceRangeByFilterAsync(PriceRangeDto priceRangeInfo);
         List<GameReadDto> GetSortedGamesAsync(List<GameReadDto> data, string sortingFilter);
-        Task<FilteredGameDto> GetSearchedGamesAsync(string searchTerm);
+        FilteredGameDto GetSearchedGamesAsync(string searchTerm);
 
     }
 }

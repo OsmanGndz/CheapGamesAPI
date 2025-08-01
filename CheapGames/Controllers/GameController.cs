@@ -161,22 +161,22 @@ namespace CheapGames.Controllers
         }
 
         [HttpGet("category")]
-        public async Task<IActionResult> GetGamesByCategory([FromQuery] string? categoryName)
+        public IActionResult GetGamesByCategory([FromQuery] string? categoryName)
         {
             if (string.IsNullOrEmpty(categoryName))
             {
                 return BadRequest("Category name cannot be empty.");
             }
 
-            var category = await _gameRepo.GetGamesByCategoryAsync(categoryName);
+            var category = _gameRepo.GetGamesByCategoryAsync(categoryName);
 
             return Ok(category);
         }
 
         [HttpGet("all-filter")]
-        public async Task<IActionResult> GetGamesByAllFilter([FromQuery] FilterParamsDto filter)
+        public IActionResult GetGamesByAllFilter([FromQuery] FilterParamsDto filter)
         {
-            var filteredGames = await _gameRepo.GetGamesByFilterAsync(filter);
+            var filteredGames = _gameRepo.GetGamesByFilterAsync(filter);
             var sortedGames = _gameRepo.GetSortedGamesAsync(filteredGames, filter.sortingFilter); // Fix applied here  
 
             if (filter.discount)
@@ -201,16 +201,16 @@ namespace CheapGames.Controllers
 
 
         [HttpGet("priceRange")]
-        public async Task<IActionResult> GetPriceRange([FromQuery] PriceRangeDto priceRangeInfo)
+        public IActionResult GetPriceRange([FromQuery] PriceRangeDto priceRangeInfo)
         {
-            var priceRange = await _gameRepo.GetPriceRangeByFilterAsync(priceRangeInfo);
+            var priceRange = _gameRepo.GetPriceRangeByFilterAsync(priceRangeInfo);
 
             return Ok(priceRange);
 
         }
 
         [HttpGet("searchGame")]
-        public async Task<IActionResult> GetSearchedGames([FromQuery] string searchTerm)
+        public IActionResult GetSearchedGames([FromQuery] string searchTerm)
         {
             if (string.IsNullOrEmpty(searchTerm))
             {

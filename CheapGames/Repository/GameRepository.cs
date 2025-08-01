@@ -40,9 +40,9 @@ namespace CheapGames.Repository
 
         }
 
-        public Task<List<Game>> GetAllGamesAsync()
+        public async Task<List<Game>> GetAllGamesAsync()
         {
-            return _context.Games
+            return await _context.Games
                 .Include(g => g.GameCategory)
                 .Include(g => g.GamePlatform)
                 .ToListAsync();
@@ -82,17 +82,17 @@ namespace CheapGames.Repository
 
         }
 
-        public Task<Game?> GetGameByIdAsync(int id)
+        public async Task<Game?> GetGameByIdAsync(int id)
         {
-            return _context.Games
+            return await _context.Games
                 .Include(g => g.GameCategory)
                 .Include(g => g.GamePlatform)
                 .FirstOrDefaultAsync(g=> g.Id == id);
         }
 
-        public async Task<List<GameReadDto>> GetGamesByCategoryAsync(string categoryName)
+        public List<GameReadDto> GetGamesByCategoryAsync(string categoryName)
         {
-            var data = _context.Games
+            var data =  _context.Games
                 .Include(g => g.GameCategory)
                 .Include(g => g.GamePlatform)
                 .AsQueryable();
@@ -108,7 +108,7 @@ namespace CheapGames.Repository
             return filteredData;
         }
 
-        public async Task<List<GameReadDto>> GetGamesByFilterAsync(FilterParamsDto filter)
+        public List<GameReadDto> GetGamesByFilterAsync(FilterParamsDto filter)
         {
             List<GameReadDto> filteredData;
             var data = _context.Games
@@ -166,7 +166,7 @@ namespace CheapGames.Repository
             return platform;
         }
 
-        public async Task<PriceDto> GetPriceRangeByFilterAsync(PriceRangeDto priceRangeInfo)
+        public  PriceDto GetPriceRangeByFilterAsync(PriceRangeDto priceRangeInfo)
         {
             var data = _context.Games
                 .Include(g => g.GameCategory)
@@ -199,7 +199,7 @@ namespace CheapGames.Repository
             return new PriceDto { minPrice = MinPrice, maxPrice = MaxPrice };
         }
 
-        public async Task<FilteredGameDto> GetSearchedGamesAsync(string searchTerm)
+        public FilteredGameDto GetSearchedGamesAsync(string searchTerm)
         {
             string pattern = $"%{searchTerm}%";
             var query = _context.Games.Where(g =>
@@ -218,8 +218,6 @@ namespace CheapGames.Repository
 
             return dataAll;
         }
-
-
 
         public List<GameReadDto> GetSortedGamesAsync(List<GameReadDto> data, string sortingFilter)
         {
