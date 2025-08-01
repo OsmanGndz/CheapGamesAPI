@@ -69,6 +69,13 @@ namespace CheapGames.Repository
             }
 
             await _context.Orders.AddAsync(order);
+
+            foreach (var game in games)
+            {
+                game.TotalSales += 1;
+                _context.Games.Update(game);
+            }
+
             await _context.SaveChangesAsync();
 
             return order;
