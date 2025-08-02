@@ -199,16 +199,16 @@ namespace CheapGames.Repository
             return new PriceDto { minPrice = MinPrice, maxPrice = MaxPrice };
         }
 
-        public FilteredGameDto GetSearchedGamesAsync(string searchTerm)
+        public async Task<FilteredGameDto> GetSearchedGamesAsync(string searchTerm)
         {
             string pattern = $"%{searchTerm}%";
             var query = _context.Games.Where(g =>
                  EF.Functions.Like(g.GameName, pattern) ||
                  EF.Functions.Like(g.GameDescription, pattern));
 
-            var dataDto = query
+            var dataDto = await query
                 .Select(g => g.ToGameReadDto())
-                .ToList();
+                .ToListAsync();
 
             var dataAll = new FilteredGameDto
             {

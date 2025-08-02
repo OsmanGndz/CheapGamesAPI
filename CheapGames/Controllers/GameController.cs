@@ -210,13 +210,13 @@ namespace CheapGames.Controllers
         }
 
         [HttpGet("searchGame")]
-        public IActionResult GetSearchedGames([FromQuery] string searchTerm)
+        public async Task<IActionResult> GetSearchedGames([FromQuery] string searchTerm)
         {
             if (string.IsNullOrEmpty(searchTerm))
             {
                 return BadRequest("Search term cannot be empty.");
             }
-            var games = _gameRepo.GetSearchedGamesAsync(searchTerm.ToLower());
+            var games = await _gameRepo.GetSearchedGamesAsync(searchTerm.ToLower());
 
             if (games == null)
             {
