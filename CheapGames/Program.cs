@@ -9,12 +9,15 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
+    options.AddPolicy("AllowCheapGames",
         policy =>
         {
-            policy.AllowAnyOrigin()
+            policy.WithOrigins(allowedOrigins)
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
@@ -63,7 +66,7 @@ var app = builder.Build();
 app.MapScalarApiReference();
 app.MapOpenApi();
 
-app.UseCors("AllowReactApp");
+app.UseCors("AllowCheapGames");
 app.UseRouting();
 
 // JWT varsa authentication kullan
